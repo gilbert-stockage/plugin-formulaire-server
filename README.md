@@ -1,1 +1,3 @@
-# Gilbert Hubspot Plugin 
+# Gilbert Hubspot Plugin
+
+Node server to expose for Hubspot.
