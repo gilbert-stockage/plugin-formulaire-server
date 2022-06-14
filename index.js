@@ -76,8 +76,6 @@ app.post("/createOrUpdate", jsonParser, async (req, res) => {
         value[0].push(undefined);
         return;
       }
-      if (headerString === "phone")
-        return value[0].push(val.value.replace("'", ""));
       if (headerString === "devis__manutention")
         value[0].push(val.value ? "oui" : "non");
       value[0].push(val.value);
