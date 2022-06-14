@@ -26,6 +26,7 @@ getAuth()
 
 const template = [
   [
+    "date",
     "email",
     "firstname",
     "lastname",
@@ -38,7 +39,6 @@ const template = [
     "devis__prix_transport",
     "devis__prix_du_stockage_estime",
     "source_contact1",
-    "date",
   ],
 ];
 
@@ -66,7 +66,9 @@ app.post("/createOrUpdate", jsonParser, async (req, res) => {
 
     // create array with in the correct order
     const value = [[]];
+    value[0].push(new Date().toDateString());
     template[0].forEach((headerString) => {
+      if (headerString === "date") return;
       const val = req.body.properties.find(
         (item) => item.property === headerString
       );
@@ -74,10 +76,10 @@ app.post("/createOrUpdate", jsonParser, async (req, res) => {
         value[0].push(undefined);
         return;
       }
+      if (headerString === "phone")
+        return value[0].push(val.value.replace("'", ""));
       value[0].push(val.value);
     });
-    value[0].pop();
-    value[0].push(new Date().toISOString());
 
     // add data to the sheet
     await googleSheetService.appendValue(service, spreadsheetId, "A3", value);
