@@ -1,34 +1,95 @@
-const express = require('express')
-const app = express()
-const Hubspot = require('hubspot')
-const cors = require('cors')
-var bodyParser = require('body-parser')
+const express = require("express");
+const { google } = require("googleapis");
+const app = express();
+const cors = require("cors");
+var bodyParser = require("body-parser");
+const { googleSheetService } = require("./services/googleSheetService");
+const { getAuth } = require("./services/InitGoogleSheet");
 
-var jsonParser = bodyParser.json()
+require("dotenv").config();
+var jsonParser = bodyParser.json();
 const PORT = process.env.PORT || 3000;
-
+const spreadsheetId = process.env.SPREADSHEET_ID;
 app.use(cors());
 
-app.get('/', function (req, res) {
-  res.send('403 Unauthorized.')
-})
+app.get("/", function (req, res) {
+  res.send("403 Unauthorized.");
+});
 
-app.post('/createOrUpdate', jsonParser, function (req, res) {
-  const hubspot = new Hubspot({
-    apiKey: 'e68542ee-c8b4-4dd9-8825-b979777ff6d1',
-    checkLimit: false
-  })
-  hubspot.contacts.createOrUpdate(req.body.email, {
-    "properties": req.body.properties
-  })
-    .then((data) => {
-      res.send(data)
-    })
-    .catch((err) => {
-      res.send(err)
-    })
-})
+var auth;
+
+getAuth()
+  .then((auth2client) => (auth = auth2client))
+  .catch(() => {
+    console.log("need crediential.json to create connection");
+    process.exit(1);
+  });
+
+const template = [
+  [
+    "email",
+    "firstname",
+    "lastname",
+    "phone",
+    "devis__liste_des_meubles",
+    "devis__manutention",
+    "devis__assurance",
+    "devis__volume_de_stockage_estime",
+    "devis__transport_en_stockage",
+    "devis__prix_transport",
+    "devis__prix_du_stockage_estime",
+    "source_contact1",
+    "date",
+  ],
+];
+
+app.post("/createOrUpdate", jsonParser, async (req, res) => {
+  try {
+    // create service
+    const service = google.sheets({ version: "v4", auth });
+    // get header of the sheet
+    const header = await googleSheetService.getRow(
+      service,
+      spreadsheetId,
+      "A1:U1"
+    );
+    // if no header add header
+    if (!header)
+      await googleSheetService.appendValue(
+        service,
+        spreadsheetId,
+        "A1",
+        template
+      );
+
+    // add a space at index 2
+    await googleSheetService.addRow(service, spreadsheetId, 2, 3);
+
+    // create array with in the correct order
+    const value = [[]];
+    template[0].forEach((headerString) => {
+      const val = req.body.properties.find(
+        (item) => item.property === headerString
+      );
+      if (!val) {
+        value[0].push(undefined);
+        return;
+      }
+      value[0].push(val.value);
+    });
+    value[0].pop();
+    value[0].push(new Date().toISOString());
+
+    // add data to the sheet
+    await googleSheetService.appendValue(service, spreadsheetId, "A3", value);
+
+    res.send({ ok: "ok" });
+  } catch (err) {
+    console.log(err);
+    res.send({ ok: err });
+  }
+});
 
 app.listen(PORT, function () {
-  console.log(`Gilbert Hubspot app running on ${PORT}`)
-})
+  console.log(`Gilbert app running on ${PORT}`);
+});
