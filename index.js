@@ -62,7 +62,7 @@ app.post("/createOrUpdate", jsonParser, async (req, res) => {
       );
 
     // add a space at index 2
-    await googleSheetService.addRow(service, spreadsheetId, 2, 3);
+    // await googleSheetService.addRow(service, spreadsheetId, 2, 3);
 
     // create array with in the correct order
     const value = [[]];
@@ -78,6 +78,8 @@ app.post("/createOrUpdate", jsonParser, async (req, res) => {
       }
       if (headerString === "phone")
         return value[0].push(val.value.replace("'", ""));
+      if (headerString === "devis__manutention")
+        value[0].push(val.value ? "oui" : "non");
       value[0].push(val.value);
     });
 
