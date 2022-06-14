@@ -6,7 +6,6 @@ var bodyParser = require("body-parser");
 const { googleSheetService } = require("./services/googleSheetService");
 const { getAuth } = require("./services/InitGoogleSheet");
 
-require("dotenv").config();
 var jsonParser = bodyParser.json();
 const PORT = process.env.PORT || 3000;
 const spreadsheetId = process.env.SPREADSHEET_ID;
