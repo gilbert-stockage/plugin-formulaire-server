@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/guillaumeduhan/node-express-boilerplate/issues"
   },
-  "homepage": "https://github.com/guillaumeduhan/node-express-boilerplate#readme",
+  "homepage": "https://github.com/guillaumeduhan/node-express-boilerplate#readme ",
   "devDependencies": {
     "dotenv": "^16.0.1"
   }
