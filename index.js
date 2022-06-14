@@ -77,7 +77,7 @@ app.post("/createOrUpdate", jsonParser, async (req, res) => {
         return;
       }
       if (headerString === "devis__manutention")
-        value[0].push(val.value ? "oui" : "non");
+        return value[0].push(val.value ? "oui" : "non");
       value[0].push(val.value);
     });
 
