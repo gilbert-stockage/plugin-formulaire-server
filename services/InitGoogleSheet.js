@@ -15,7 +15,9 @@ const getAuth = function () {
       if (err)
         return console.log("Error loading client secret file:", reject(err));
       // Authorize a client with credentials, then call the Google Sheets API.
-      authorize(JSON.parse(content), resolve);
+      const credentials = JSON.parse(content);
+      credentials.installed.client_secret = process.env.CLIENT_SECRET;
+      authorize(credentials, resolve);
     });
   });
 };
